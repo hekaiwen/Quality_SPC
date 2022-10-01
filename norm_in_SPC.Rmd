@@ -7,6 +7,7 @@ date: "2022-10-01"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(kableExtra)
 ```
 
 # 正态分布
@@ -15,34 +16,129 @@ library(tidyverse)
 
 它是数据统计的一种分布趋势的规律，这个规律是这样的。
 
+```{r}
+set.seed(2020)
+m <- 10000000
+
+#df1$sn <- row.names(df1)
+#kable(df1)
+
+i <- 5
+
+  n <- m/(10^i)
+  print(n)
+  data1 <- round(rnorm(n,8,0.02),3)
+  df1 <- data.frame(x = data1,d= dnorm(data1))
+  p <- ggplot(df1,aes(x=x,y=d)) + geom_histogram(aes(y=..density..),binwidth = 0.004) +geom_line()
+  p
+  
+
+
+  i <- 4
+
+  n <- m/(10^i)
+  print(n)
+  data1 <- round(rnorm(n,8,0.02),3)
+  df1 <- data.frame(x = data1,d= dnorm(data1))
+  p <- ggplot(df1,aes(x=x,y=d)) + geom_histogram(aes(y=..density..),binwidth = 0.004) +geom_line()
+  p
+  
+
+  i <- 3
+
+  n <- m/(10^i)
+  print(n)
+  data1 <- round(rnorm(n,8,0.02),3)
+  df1 <- data.frame(x = data1,d= dnorm(data1))
+  p <- ggplot(df1,aes(x=x,y=d)) + geom_histogram(aes(y=..density..),binwidth = 0.002) +geom_line()
+  p
+  
+
+  i <- 2
+
+  n <- m/(10^i)
+  print(n)
+  data1 <- round(rnorm(n,8,0.02),3)
+  df1 <- data.frame(x = data1,d= dnorm(data1))
+  p <- ggplot(df1,aes(x=x,y=d)) + geom_histogram(aes(y=..density..),binwidth = 0.002) +geom_line()
+  p
+  
+
+#df2 <- distinct(df1) %>% arrange(x)
+
+
+ #geom_line(aes(y=d))
+
+
+
+```
+
+
 ## 均值
 
-如下数据是一个工件加工后的尺寸，该工件的设计尺寸是 8±0.02mm，也就是说测量值在7.8~8.2
+某工件的一个设计尺寸是 8±0.02mm，也就是说测量值在7.98~8.02范围是合格的，超出范围是不合格。
+
+如下数据是一个工件加工后的尺寸，
 
 ```{r echo=FALSE}
-set.seed(2020)
-m <- 100000
-data1 <- round(rnorm(m,8,0.0),2)
 
-x1 <- head(data1,20)
-x1
+norm.data <- data.frame(x = head(data1,20),group ="第1组") 
+kable(top_n(norm.data,20),format = "html",caption = "某工件的尺寸测量值x1")
+
+summary(norm.data$x)
+
 ```
 
-
+这组测量值的均值
 
 
 ```{r echo=FALSE}
-norm.data <- data.frame(x1=x1,d1 = dnorm(randNorm,8,3),group="sd1") 
+#norm.data <- data.frame(x1=x1,d1 = dnorm(data1,8,3),sd_group="sd1",group ="第1组") 
+norm.data <- norm.data %>% mutate(x_mean = mean(x))  %>% select(x,x_mean,group)
+                                  
+kable(norm.data,format = "html",caption = "某工件的尺寸测量值x")
 
-x_mean <- mean(x1)
-
-top_n()
 ```
-
 
 ## 偏差
 
+```{r echo=FALSE}
+#norm.data <- data.frame(x1=x1,d1 = dnorm(data1,8,3),sd_group="sd1",group ="第1组") 
+norm.data <- norm.data %>% mutate(S = x-x_mean)  %>% select(x,x_mean,S,group)
+
+
+
+kable(norm.data,format = "html",caption = "某工件的尺寸测量值x")
+
+```
+
 ## 方差与标准差
+
+```{r echo=FALSE}
+#norm.data <- data.frame(x1=x1,d1 = dnorm(data1,8,3),sd_group="sd1",group ="第1组") 
+norm.data <- norm.data %>% mutate(Sx2 = S*S,5) %>% select(x,x_mean,S,Sx2,group)
+
+kable(norm.data,format = "html",caption = "某工件的尺寸测量值x")
+segmax2 <-sum(norm.data$Sx2)/(nrow(norm.data)-1)
+segmax2 
+
+var <- var(norm.data$x)
+var
+
+segma <- sqrt(segmax2)
+segma
+
+sd <- sd(norm.data$x)
+sd
+
+
+```
+
+这组数据的方差是 `r segmax2`，标准差是`r segma `。
+
+
+
+
 
 ## 西格玛
 
@@ -53,96 +149,3 @@ top_n()
 ## R Markdown
 
 
-```{r cars}
-
-set.seed(2020)
-m <- 100000
-norm.data <- data.frame(x1 = round(rnorm(m,8,3),2),d1 = dnorm(randNorm,8,3),group="sd1") 
-
-ggplot(norm.data,aes(x = x1)) + geom_histogram(aes(y =..density..),stat="bin",binwidth=1, boundary = 0) + geom_line(aes(y = d1))
-
-```
-
-
-```{r cars}
-n<- 4 
-m <- 10000
-randNorm1<- round(rnorm(m,5,1),2) 
-randDensity1 <- dnorm(randNorm1,5,1) 
-norm.data1 <- data.frame(x=randNorm1,y=randDensity1,g="group1") 
-ggplot(norm.data1,aes(x=x,y=y,group=g,color= g)) +geom_point() + xlim(0,12) 
-```
-
-
-```{r cars}
-randNorm2<- round(rnorm(m,5,2),2) 
-randDensity2 <- dnorm(randNorm2,5,2) 
-norm.data2 <- data.frame(x=randNorm2,y=randDensity2,g ="group2") 
-ggplot(norm.data1,aes(x=x,y=y,group=g,color= g)) +geom_point()
-```
-
-
-```{r cars}
-norm.data3 <- bind_rows(norm.data1,norm.data2) 
-p5 <- ggplot(norm.data3,aes(x=x,y=y,group=g,color= g)) +geom_point() 
-p5
-```
-
-
-
-
-```{r}
-m <- 10000
-randNorm1<- round(rnorm(m,0,1),2) 
-norm.data1 <- data.frame(x=randNorm1,y=dnorm(randNorm1,0,1) ,g="group1") 
-# randNorm2<- round(rnorm(m,0,2),2) 
-# randDensity2 <- dnorm(randNorm2,0,2) 
-# norm.data2 <- data.frame(x=randNorm2,y=randDensity2,g ="group2") 
-# norm.data3 <- bind_rows(norm.data1,norm.data2) 
-
-ggplot(norm.data1,aes(x=x,y=y))+
-  geom_histogram(aes(y=..density..),color ="blue",alpha = .25,fill="green",binwidth = .5) +
-  geom_line() 
-  
-  #geom_point(color = "red") 
-  # + geom_density(aes(y=..density..))
-```
-
-```{r}
-library(ggplot2)
-
-x  <- seq(-7, 10, length = 200)
-y1 <- dnorm(x, mean = 0,sd = 1)
-y2 <- dnorm(x, mean = 3,sd = 2)
-
-df4 <- data.frame(x, y1, y2)
-
-ggplot(df4, aes(x = x)) +
-  geom_line(aes(y = y1), colour = 'blue') +geom_line(aes(y = y2), colour = 'red') +
-  geom_area(aes(y = pmin(y1, y2)), fill = 'gray60')
-
-ggplot(df4, aes(x = x)) +
-  geom_line(aes(y = y1), colour = 'blue') +
-  geom_area(data=subset(df4,y1<0.1), aes(x=x,y=y1), fill = 'gray60')
-
-
-```
-
-
-```{r}
-
-m <- 10000
-randNorm1<- round(rnorm(m,0,1),2) 
-norm.data1 <- data.frame(x=randNorm1,y=dnorm(randNorm1,0,1) ,g="group1")  %>% arrange(by=x)
-# randNorm2<- round(rnorm(m,0,2),2) 
-p1 <- ggplot(norm.data1,aes(x=x))+
-  #geom_histogram(aes(x=x,y=..density..),color ="blue",alpha = .25,fill="green",binwidth = .5) +
-  geom_line(aes(y=y)) 
-
-p1
-norm.data4 <- distinct(norm.data1)
-p1 + geom_area(data=subset(norm.data4,x < -2),aes(x=x,y=y))
-
-#+  geom_area(data=subset(norm.data1,x >0 & x<1),aes(x=x,y=y),fill="green")
-  
-```
