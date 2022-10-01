@@ -1,0 +1,148 @@
+---
+title: "norm_in_SPC"
+output: html_document
+date: "2022-10-01"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# 正态分布
+
+## 正态分布是什么分布？
+
+它是数据统计的一种分布趋势的规律，这个规律是这样的。
+
+## 均值
+
+如下数据是一个工件加工后的尺寸，该工件的设计尺寸是 8±0.02mm，也就是说测量值在7.8~8.2
+
+```{r echo=FALSE}
+set.seed(2020)
+m <- 100000
+data1 <- round(rnorm(m,8,0.0),2)
+
+x1 <- head(data1,20)
+x1
+```
+
+
+
+
+```{r echo=FALSE}
+norm.data <- data.frame(x1=x1,d1 = dnorm(randNorm,8,3),group="sd1") 
+
+x_mean <- mean(x1)
+
+top_n()
+```
+
+
+## 偏差
+
+## 方差与标准差
+
+## 西格玛
+
+
+## 
+
+
+## R Markdown
+
+
+```{r cars}
+
+set.seed(2020)
+m <- 100000
+norm.data <- data.frame(x1 = round(rnorm(m,8,3),2),d1 = dnorm(randNorm,8,3),group="sd1") 
+
+ggplot(norm.data,aes(x = x1)) + geom_histogram(aes(y =..density..),stat="bin",binwidth=1, boundary = 0) + geom_line(aes(y = d1))
+
+```
+
+
+```{r cars}
+n<- 4 
+m <- 10000
+randNorm1<- round(rnorm(m,5,1),2) 
+randDensity1 <- dnorm(randNorm1,5,1) 
+norm.data1 <- data.frame(x=randNorm1,y=randDensity1,g="group1") 
+ggplot(norm.data1,aes(x=x,y=y,group=g,color= g)) +geom_point() + xlim(0,12) 
+```
+
+
+```{r cars}
+randNorm2<- round(rnorm(m,5,2),2) 
+randDensity2 <- dnorm(randNorm2,5,2) 
+norm.data2 <- data.frame(x=randNorm2,y=randDensity2,g ="group2") 
+ggplot(norm.data1,aes(x=x,y=y,group=g,color= g)) +geom_point()
+```
+
+
+```{r cars}
+norm.data3 <- bind_rows(norm.data1,norm.data2) 
+p5 <- ggplot(norm.data3,aes(x=x,y=y,group=g,color= g)) +geom_point() 
+p5
+```
+
+
+
+
+```{r}
+m <- 10000
+randNorm1<- round(rnorm(m,0,1),2) 
+norm.data1 <- data.frame(x=randNorm1,y=dnorm(randNorm1,0,1) ,g="group1") 
+# randNorm2<- round(rnorm(m,0,2),2) 
+# randDensity2 <- dnorm(randNorm2,0,2) 
+# norm.data2 <- data.frame(x=randNorm2,y=randDensity2,g ="group2") 
+# norm.data3 <- bind_rows(norm.data1,norm.data2) 
+
+ggplot(norm.data1,aes(x=x,y=y))+
+  geom_histogram(aes(y=..density..),color ="blue",alpha = .25,fill="green",binwidth = .5) +
+  geom_line() 
+  
+  #geom_point(color = "red") 
+  # + geom_density(aes(y=..density..))
+```
+
+```{r}
+library(ggplot2)
+
+x  <- seq(-7, 10, length = 200)
+y1 <- dnorm(x, mean = 0,sd = 1)
+y2 <- dnorm(x, mean = 3,sd = 2)
+
+df4 <- data.frame(x, y1, y2)
+
+ggplot(df4, aes(x = x)) +
+  geom_line(aes(y = y1), colour = 'blue') +geom_line(aes(y = y2), colour = 'red') +
+  geom_area(aes(y = pmin(y1, y2)), fill = 'gray60')
+
+ggplot(df4, aes(x = x)) +
+  geom_line(aes(y = y1), colour = 'blue') +
+  geom_area(data=subset(df4,y1<0.1), aes(x=x,y=y1), fill = 'gray60')
+
+
+```
+
+
+```{r}
+
+m <- 10000
+randNorm1<- round(rnorm(m,0,1),2) 
+norm.data1 <- data.frame(x=randNorm1,y=dnorm(randNorm1,0,1) ,g="group1")  %>% arrange(by=x)
+# randNorm2<- round(rnorm(m,0,2),2) 
+p1 <- ggplot(norm.data1,aes(x=x))+
+  #geom_histogram(aes(x=x,y=..density..),color ="blue",alpha = .25,fill="green",binwidth = .5) +
+  geom_line(aes(y=y)) 
+
+p1
+norm.data4 <- distinct(norm.data1)
+p1 + geom_area(data=subset(norm.data4,x < -2),aes(x=x,y=y))
+
+#+  geom_area(data=subset(norm.data1,x >0 & x<1),aes(x=x,y=y),fill="green")
+  
+```

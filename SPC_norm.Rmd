@@ -1,0 +1,266 @@
+---
+title: "SPC_norm"
+output: html_document
+date: "2022-09-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(tidyverse)
+```
+
+## R Markdown
+
+
+```{r cars}
+
+set.seed(2020)
+m <- 100000
+randNorm<- round(rnorm(m,0,1),2) 
+norm.data <- data.frame(randNorm=randNorm,group="sd1") 
+
+ggplot(norm.data,aes(x=randNorm,y =..density..)) + geom_histogram(aes(),stat="bin",binwidth=0.5, boundary = 0) + geom_density()
+
+```
+
+
+```{r cars}
+n<- 4 
+m <- 10000
+randNorm1<- round(rnorm(m,5,1),2) 
+randDensity1 <- dnorm(randNorm1,5,1) 
+norm.data1 <- data.frame(x=randNorm1,y=randDensity1,g="group1") 
+ggplot(norm.data1,aes(x=x,y=y,group=g,color= g)) +geom_point() + xlim(0,12) 
+```
+
+
+```{r cars}
+randNorm2<- round(rnorm(m,5,2),2) 
+randDensity2 <- dnorm(randNorm2,5,2) 
+norm.data2 <- data.frame(x=randNorm2,y=randDensity2,g ="group2") 
+ggplot(norm.data1,aes(x=x,y=y,group=g,color= g)) +geom_point()
+```
+
+
+```{r cars}
+norm.data3 <- bind_rows(norm.data1,norm.data2) 
+p5 <- ggplot(norm.data3,aes(x=x,y=y,group=g,color= g)) +geom_point() 
+p5
+```
+
+
+
+
+```{r}
+m <- 10000
+randNorm1<- round(rnorm(m,0,1),2) 
+norm.data1 <- data.frame(x=randNorm1,y=dnorm(randNorm1,0,1) ,g="group1") 
+# randNorm2<- round(rnorm(m,0,2),2) 
+# randDensity2 <- dnorm(randNorm2,0,2) 
+# norm.data2 <- data.frame(x=randNorm2,y=randDensity2,g ="group2") 
+# norm.data3 <- bind_rows(norm.data1,norm.data2) 
+
+ggplot(norm.data1,aes(x=x,y=y))+
+  geom_histogram(aes(y=..density..),color ="blue",alpha = .25,fill="green",binwidth = .5) +
+  geom_line() 
+  
+  #geom_point(color = "red") 
+  # + geom_density(aes(y=..density..))
+```
+
+```{r}
+library(ggplot2)
+
+x  <- seq(-7, 10, length = 200)
+y1 <- dnorm(x, mean = 0,sd = 1)
+y2 <- dnorm(x, mean = 3,sd = 2)
+
+df4 <- data.frame(x, y1, y2)
+
+ggplot(df4, aes(x = x)) +
+  geom_line(aes(y = y1), colour = 'blue') +geom_line(aes(y = y2), colour = 'red') +
+  geom_area(aes(y = pmin(y1, y2)), fill = 'gray60')
+
+ggplot(df4, aes(x = x)) +
+  geom_line(aes(y = y1), colour = 'blue') +
+  geom_area(data=subset(df4,y1<0.1), aes(x=x,y=y1), fill = 'gray60')
+
+
+```
+
+
+```{r}
+
+m <- 10000
+randNorm1<- round(rnorm(m,0,1),2) 
+norm.data1 <- data.frame(x=randNorm1,y=dnorm(randNorm1,0,1) ,g="group1")  %>% arrange(by=x)
+# randNorm2<- round(rnorm(m,0,2),2) 
+p1 <- ggplot(norm.data1,aes(x=x))+
+  #geom_histogram(aes(x=x,y=..density..),color ="blue",alpha = .25,fill="green",binwidth = .5) +
+  geom_line(aes(y=y)) 
+
+p1
+norm.data4 <- distinct(norm.data1)
+p1 + geom_area(data=subset(norm.data4,x < -2),aes(x=x,y=y))
+
+#+  geom_area(data=subset(norm.data1,x >0 & x<1),aes(x=x,y=y),fill="green")
+  
+```
+
+
+
+## gglot2 填充颜色
+
+```{r pressure, echo=FALSE}
+# 获取mpg变量的密度
+dense = data.frame(density(mtcars$mpg)[c('x','y')])
+
+
+
+ggplot(mtcars,aes(x =mpg))+
+        geom_histogram(aes(y=..density..), color="#88ada6", alpha=.25, fill="#fffbf0", binwidth = 2, center=1)+
+        geom_density()+
+        geom_area(data = subset(dense,x >= 10 & x < 15), aes(x, y, fill = "Label 1"), alpha=.4)+
+        geom_area(data = subset(dense,x >= 15 & x < 20), aes(x, y, fill = "Label 2"), alpha=.4)+
+        geom_area(data = subset(dense,x  >= 20 & x < 25), aes(x, y, fill = "Label 3"), alpha=.4)+
+        geom_area(data = subset(dense,x >= 26 & x < 30), aes(x, y, fill = "Label 4"), alpha=.4)+
+        geom_area(data = subset(dense,x >= 30), aes(x, y, fill = "Label 5"), alpha=.4)+
+        scale_fill_manual("Label title", 
+                          breaks = c("Label 1", "Label 2", "Label 3", "Label 4", "Label 5"), 
+                          values = c("Label 1"="#4b5cc466", "Label 2"="#16a95166", "Label 3"="#ffb61e66", "Label 4"="#ff750066", "Label 5"="#c3272b66"))+
+        labs(title="title",
+             subtitle="subtitle",
+             caption = "caption",
+             x = 'x axis title',
+             y = 'y axis title')+
+  theme_bw()+
+        theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+              plot.subtitle = element_text(size = 12, face = "bold", hjust = 0.5),
+              plot.caption = element_text(size = 12, face = "italic"),
+              axis.text = element_text(size=12),
+              axis.title = element_text(size=14, face="bold"))+
+        geom_vline(xintercept = 15,linetype = "twodash",color="blue",size = 1)+
+        annotate("rect", xmin = 10, xmax = 18, ymin = 0.05, ymax = 0.07, alpha = .1, fill="navy")+
+        annotate("text", fontface = "bold", color="blue",
+                 x = 14, y=0.06,
+                 label = 'annotation', size=6)
+
+```
+## 在直方图上加密度曲线
+在上图基础上，可以直接用geom_density函数加上密度曲线（代码最后一行）。
+
+```{r}
+g=ggplot(mtcars,aes(x =mpg))+
+        geom_histogram(aes(y=..density..), # 纵坐标是密度。类似也可以将纵坐标设置为频数(count)
+                       color="#88ada6", fill="#fffbf0", # 边框与填充色，可以不设置
+                       alpha=.25,  # 透明度，可以不设置
+                        binwidth = 2, # 柱子的宽度。类似得也可以设置柱子的个数，如bins = 30
+                       center = 0)+ # 柱子与对应横坐标的相对位置。0是指居中对齐。1是指对应数字在柱子的右侧边线。可以不设置
+        geom_density() # 密度曲线
+g
+
+```
+
+
+
+## 添加（修改）标题与横纵轴名称，并修改标题格式。
+要设置标题和横纵坐标轴名称，可以通过+labs函数。标题，副标题，脚标题，横、纵坐标轴的内容可以分别通过参数title,subtitle,caption,x,y来设置。
+要设置标题和坐标轴文字的格式，可以在theme函数中改变plot.title,plot.subtitle,plot.caption.axis.text,axis.title这几个变量。假如希望将横纵坐标轴的格式分别设置，也可以将axis.text换成axis.text.x或axis.text.y。
+在上图基础上，以下代码设置了labs和theme两个部分。
+
+```{r}
+g = g+ labs(title="title", 
+             subtitle="subtitle",
+             caption = "caption",
+             x = 'x axis title',
+             y = 'y axis title')+
+        theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+              plot.subtitle = element_text(size = 12, face = "bold", hjust = 0.5),
+              plot.caption = element_text(size = 12, face = "italic"),
+              axis.text = element_text(size=12),  # 坐标轴上的文字
+              axis.title = element_text(size=14, face="bold")) # 坐标轴标题
+g
+
+```
+
+## 添加背景填充并且设置其颜色
+首先，我们得到mpg的密度，记为dense。这是一个拥有两列的数据框（data.frame），两列分别代表mpg的值（x）与其对应密度（y）。
+
+
+```{r}
+
+# 获取mpg变量的密度
+dense = data.frame(density(mtcars$mpg)[c('x','y')])
+
+```
+
+在上图基础上，我们通过多次调用geom_area函数，为处于不同区间的mpg值（也就是横坐标的值），绘制不同的背景。在每次使用geom_area函数中，我们改变的参数有：
+
+data：这段背景图所采用的的数据集。下面实例中通过subset函数选取了密度数据框dense的子集。
+fill：颜色填充。这里填写的是标签的名字，以便在图例中显示。
+alpha：透明度。取值在0 00和1 11之间，越小越透明。
+
+
+
+
+```{r}
+g = g + 
+        geom_area(data = subset(dense,x >= 10 & x < 15), aes(x, y, fill = "Label 1"), alpha=.4)+
+        geom_area(data = subset(dense,x >= 15 & x < 20), aes(x, y, fill = "Label 2"),alpha=.4)+
+        geom_area(data = subset(dense,x  >= 20 & x < 25), aes(x, y, fill = "Label 3"), alpha=.4)+
+        geom_area(data = subset(dense,x >= 26 & x < 30), aes(x, y, fill = "Label 4"), alpha=.4)+
+        geom_area(data = subset(dense,x >= 30), aes(x, y, fill = "Label 5"), ,alpha=.4)
+g
+```
+## 改变背景填充颜色
+在上图基础上，通过添加scale_fill_manual来改变颜色。其中我们设置了
+
+图例标题。设置在了函数的第一个变量（我不知道这个变量叫什么，欢迎补充！），也即"Label title"。
+breaks：改变颜色的地方（一个向量）。这里填的是图例名称，如"Lable 1"。
+values：颜色（一个向量）。对每个分量，这里采用了”Label 1“=’#4b5cc466‘的方式。也可以直接填写颜色名称。
+
+
+```{r}
+g = g + scale_fill_manual("Label title", 
+                          breaks = c("Label 1", "Label 2", "Label 3", "Label 4", "Label 5"), 
+                          values = c("Label 1"="#4b5cc466", "Label 2"="#16a95166", "Label 3"="#ffb61e66", "Label 4"="#ff750066", "Label 5"="#c3272b66"))
+g
+```
+
+## 添加竖直线条
+可以用geom_abline添加直线。特别地，可以用geom_vline和geom_hline分别添加竖直和水平的线条。为方便记忆，这里的”v"和”h“分别代表"vertical"和"horizontal"（个人理解）。
+
+
+```{r}
+g = g + geom_vline(xintercept = 15,linetype = "twodash",color="blue",size = 1)
+g
+
+```
+
+## 图中添加文字与矩形注释
+在之前的代码基础上，可以通过annotate函数添加注释。将geom变量设为”text“和”rect“分别代表文字与矩形。并且可以调整其位置、大小、颜色等。
+以下代码中分别添加了文字与矩形。
+
+
+```{r}
+g = g+annotate(geom = "rect", xmin = 10, xmax = 18, ymin = 0.05, ymax = 0.07, alpha = .1, fill="navy")+
+        annotate(geom = "text", fontface = "bold", color="blue",
+                 x = 14, y=0.06,
+                 label = 'annotation', size=6)
+g
+
+```
+
+## 改变图片背景颜色与线条
+通过theme_bw()函数来采用ggplot2为我们提供的一种背景格式。类似的格式还有theme_classic()等。可以直接参考文首的代码绘制下图。
+【注1】：请将”+theme_bw()“这句代码加在对theme的设置前面，否则它可能覆盖掉theme的部分设置。例如，如果在前文代码上做如下修改，那么图片的总标题则被移回了最左端。
+
+```{r}
+g + theme_bw()
+```
+## 
+
+
+
+【注2】：为规避上述问题，可以参考ggplot2边框背景去除来手动更改边框与背景。
