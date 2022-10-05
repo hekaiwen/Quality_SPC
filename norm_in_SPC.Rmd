@@ -1,77 +1,317 @@
 ---
 title: "norm_in_SPC"
-output: html_document
-date: "2022-10-01"
+author: "何开文"
+date: "`r Sys.Date()`"
+output: 
+  dudaozhidaodoc::mp_dudaozhidao_html:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_float: yes
 ---
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(kableExtra)
+library(gridExtra) 
+library(ggthemes)
+require(graphics)
+
+
+source("~/LearningNotes_R/theme_hkw_custom.R") #导入自定义ggtheme
+
+
 ```
+
+# 统计学基础
+
+
+## 两种基本思维
+
+  世界是无穷无尽限的，比如全世界所有的人体重、身高的数据，即使足够的人手和资源为每个人测量，也会因为生老病死而无法做到。
+  因此有两个思维对理解统计学方法非常重要：抽样和极限。
+
+### 抽样
+
+ 通过有代表性的部分——**样本** 来描绘数据的总体特性，由部分到全貌，由个别到一般，是统计学解决问题的根本初衷，也是其价值所在。
+ 
+ 我们能统计到的数据是部分，而我们描绘是总体的特性，我们用来解决问题的也是总体的特性。
+ 
+### 极限
+
+ 数学家解决这个问题的办法是利用微积分的思维把统计到的数据规律推广到*极限*，因此，统计中的基本定理和公式是以积分求极限的方式来推导和证明的，最常见的描绘是"当n趋向于无穷时..."
+
+## 基本定义
+
+基础概念是逻辑推理的基础，定义了逻辑的范畴。在我们即要描绘的正态分布这个最重要的数据分布形态中，最重要的基本概念有三个，*级数*、*均值*、*概率密度*。
+
+### 级数
+
+如果给定一个数列u1,u2,u3,…,un,…，则表达式u1＋u2＋u3＋…＋un＋… 叫作（常数项）无穷级数，简称（常数项）级数，记作![](./pic/jishu.png), 即![](./pic/jishu2.png)
+其中u1,u2,u3,…,un,…叫作级数的项，u1叫作级数的首项，级数的第n项un叫作级数的通项或一般项.
+
+### 概率密度
+
+概率密度（Probability Density），指事件随机发生的几率。概率密度等于一段区间（事件的取值范围）的概率除以该段区间的长度，它的值是非负的，可以很大也可以很小。
+
+概率密度，随机变量落在一个区间内的概率与这个区间大小的比值在区间大小趋向于0时的极限。
+![](./pic/概率密度2.webp)
+
+
+定义：对于随机变量X的分布函数F(x)，如果存在非负可积函数f(x)，使得对任意实数x，有![](./pic/概率密度1.svg)
+
+则X为连续型随机变量，称f(x)为X的概率密度函数，简称为概率密度。
+
+### 均值
+
+  更正式的名称叫数学期望，对于离散型变量和连续型变量是分别定义的，
+  
+  +  *定义1：* 设X是离散型的随机变量，其分布律为 P（X=xi）=pi，i=1，2，…．如果级数 ![](./pic/lisan_shuxueqiwang1.png) 绝对收敛，则称![](./pic/lisan_shuxueqiwang2.png)为离散型随机变量X的数学期望，也称作期望或均值。
+  
+  +  *定义2：* 设X是连续型随机变量，其密度函数为f（x）．如果广义积分 ![](./pic/lianxu_shuxueqiwang1.png)
+绝对收敛，则称![](./pic/lianxu_shuxueqiwang2.png)为连续型随机变量X的数学期望，也称作期望或均值．
+
+*抽样思维：* 这里要强调一下的是，统计学中*均值*的概念指的样本所代表的那个总体的均值，是用极限的方法穷举所有可能得出的值，而不是样本的算术平均，为了概念上的严谨，专业场合*数学期望*这个称谓更常用。
+
+### 方差
+
+  方差是一个均值（数学期望），它是一个特殊级数（无穷个项的均值，这个
+  
+
+
+ 
+ *定义：*
+
+
+
+
+
+## 
 
 # 正态分布
 
-## 正态分布是什么分布？
+
+## 正态分布数据的分布图示
+
+
+```{r dnorm_sigma,echo=FALSE,warning=FALSE,fig.height=3,fig.width=9}
+  set.seed(2025)
+  m <- 10000
+  mean <- 0
+  sd <- 1
+  x_tol <- 2.8 # 2.8*sd
+  x_limits <- c(-5*sd*0.8,5*sd*0.8) +mean
+  x_break <- c(-4*sd*0.8,-3*sd*0.8,-2*sd*0.8,-sd*0.8,mean,sd*0.8,2*sd*0.8,3*sd*0.8,4*sd*0.8) +mean
+  x_labls <- expression(-4*sigma,-3*sigma,-2*sigma,-1*sigma,0,1*sigma,2*sigma,3*sigma,4*sigma)
+  color_area <- c("#BFBFCF","#BFCFBF","#BFEFEF","#BFFFFF","#BFBFBF","#C00000")
+  
+  data17 <- round(rnorm(100000,mean,sd),3)
+
+  df17 <- data.frame(x = data17,d= dnorm(data17,mean,sd)) %>% distinct()
+ p17 <- ggplot(df17,aes(x=x,y=d)) + 
+   labs(title=expression(paste("正态分布6",sigma,"区间"))) + geom_line(color = "#186779") +  
+   geom_area(fill="#A2F4BA",alpha = .25) + 
+   scale_x_continuous(limits = x_limits,breaks = x_break,labels = x_labls)+
+   geom_vline(aes(xintercept=0))+
+    geom_area(data =subset(df17,x< -3*sd*0.7),aes(x=x,y=d),fill=color_area[1]) +
+    geom_area(data =subset(df17,x> 3*sd*0.7),aes(x=x,y=d),fill=color_area[1])+
+   theme_hkw()          
+  
+  p17
+  
+
+```
+
+## 从频度分布到概率密度曲线
 
 它是数据统计的一种分布趋势的规律，这个规律是这样的。
 
+频数柱状图
+密度柱状图
+
 ```{r}
-set.seed(2020)
-m <- 10000000
 
-#df1$sn <- row.names(df1)
-#kable(df1)
-
-i <- 5
-
-  n <- m/(10^i)
-  print(n)
-  data1 <- round(rnorm(n,8,0.02),3)
-  df1 <- data.frame(x = data1,d= dnorm(data1))
-  p <- ggplot(df1,aes(x=x,y=d)) + geom_histogram(aes(y=..density..),binwidth = 0.004) +geom_line()
-  p
-  
-
-
-  i <- 4
-
-  n <- m/(10^i)
-  print(n)
-  data1 <- round(rnorm(n,8,0.02),3)
-  df1 <- data.frame(x = data1,d= dnorm(data1))
-  p <- ggplot(df1,aes(x=x,y=d)) + geom_histogram(aes(y=..density..),binwidth = 0.004) +geom_line()
-  p
-  
-
-  i <- 3
-
-  n <- m/(10^i)
-  print(n)
-  data1 <- round(rnorm(n,8,0.02),3)
-  df1 <- data.frame(x = data1,d= dnorm(data1))
-  p <- ggplot(df1,aes(x=x,y=d)) + geom_histogram(aes(y=..density..),binwidth = 0.002) +geom_line()
-  p
-  
-
-  i <- 2
-
-  n <- m/(10^i)
-  print(n)
-  data1 <- round(rnorm(n,8,0.02),3)
-  df1 <- data.frame(x = data1,d= dnorm(data1))
-  p <- ggplot(df1,aes(x=x,y=d)) + geom_histogram(aes(y=..density..),binwidth = 0.002) +geom_line()
-  p
-  
-
-#df2 <- distinct(df1) %>% arrange(x)
-
-
- #geom_line(aes(y=d))
-
-
+  m <- 10000
+  mean <- 0
+  sd <- 0.02
+  x_limits <- c(-5*sd*0.8,5*sd*0.8) +mean
+  x_break <- c(-4*sd*0.8,-3*sd*0.8,-2*sd*0.8,-sd*0.8,mean,sd*0.8,2*sd*0.8,3*sd*0.8,4*sd*0.8) +mean
+  x_labls <- expression(-4*sigma,-3*sigma,-2*sigma,-1*sigma,0,1*sigma,2*sigma,3*sigma,4*sigma)
+  color_area <- c("#BFBFCF","#BFCFBF","#BFEFEF","#BFFFFF","#BFBFBF","#C00000")
 
 ```
+
+
+```{r histgram,echo=FALSE,warning=FALSE,fig.height=4,fig.width=9}
+set.seed(2026)
+
+  data1 <- round(rnorm(1000,mean,sd),3)
+  df1 <- data.frame(x = data1,d= dnorm(data1,mean,sd))
+  kable(head(df1,10),caption = "10个数据")
+  
+  p1 <- ggplot(df1,aes(x=x,y=d)) + 
+    geom_histogram(aes(y=..density..),color ="#17C2B2",alpha = .25,fill="#A2F4BA",binwidth = 0.01) + 
+    labs(title= "100个数据的频数分布")  +
+    scale_x_continuous(limits = x_limits,breaks = x_break)+
+    theme_hkw()
+
+data2 <- round(rnorm(1000,mean,sd),3)
+  df2 <- data.frame(x = data2,d= dnorm(data2,mean,sd))
+  p2 <- ggplot(df2,aes(x=x,y=d)) + 
+    geom_histogram(aes(y=..density..),color ="#17C2B2",alpha = .25,fill="#A2F4BA",binwidth =0.005) +
+    labs(title="1000个数据的频数分布")  +
+    scale_x_continuous(limits = x_limits,breaks = x_break)+
+  theme_hkw()
+  
+  data3 <- round(rnorm(10000,mean,sd),3)
+  df3 <- data.frame(x = data3,d= dnorm(data3,mean,sd))
+  p3 <- ggplot(df3,aes(x=x,y=d)) + 
+    geom_histogram(aes(y=..density..),color ="#17C2B2",alpha = .25,fill="#A2F4BA",binwidth = 0.002) +
+    labs(title="10000个数据的频数分布")  +
+    scale_x_continuous(limits = x_limits,breaks = x_break)+
+  theme_hkw()
+ 
+               
+  data4 <- round(rnorm(100000,mean,sd),3)
+  df4 <- data.frame(x = data4,d= dnorm(data4,mean,sd))             
+  p4 <- ggplot(df4,aes(x=x,y=d)) + 
+    geom_histogram(aes(y=..density..),color ="#17C2B2",alpha = .25,fill="#A2F4BA",binwidth = 0.001)  +
+    labs(title="100000个正态分布数据的频数分布图") +
+    scale_x_continuous(limits = x_limits,breaks = x_break)+
+    theme_hkw()
+```
+
+```{r histgram_grid,echo=FALSE,warning=FALSE,fig.width=9,fig.height=12}
+
+grid.arrange(p1,p2,p3,p4, ncol = 1, nrow = 4)
+
+```
+
+## 频度图叠加概率密度曲线
+
+
+```{r hist_line,echo=FALSE,warning=FALSE,fig.height=3,fig.width=9}
+
+  x_limits <- c(-7*0.7*sd,7*0.7*sd)
+  x_break <- c(-6*0.7*sd,-5*0.7*sd,-4*0.7*sd,-3*0.7*sd,-2*0.7*sd,-0.7*sd,mean,0.7*sd,2*0.7*sd,3*0.7*sd,4*0.7*sd,5*0.7*sd,6*0.7*sd)
+  x_labls<- expression(-6*sigma,-5*sigma,-4*sigma,-3*sigma,-2*sigma,-1*sigma,0,1*sigma,2*sigma,3*sigma,4*sigma,5*sigma,6*sigma)
+p5 <- p4 + geom_line(color = "#186779") 
+ p5
+ 
+ df6 <- df4 %>% distinct()
+ p6 <- ggplot(df6,aes(x=x,y=d)) + 
+    labs(title="正态分布6sigma区间") + geom_line(color = "#186779") +    
+   geom_area(fill="#A2F4BA",alpha = .25) + 
+   scale_x_continuous(limits = x_limits,breaks = x_break,labels = x_labls)+
+   theme_hkw()
+ p6
+ 
+ p7 <- p6 + geom_vline(aes(xintercept=0))
+ p7
+```
+
+## 正态分布的标准差sigma
+
+
+```{r hist_area,echo=FALSE,warning=FALSE,fig.height=3,fig.width=9}
+
+
+
+  p8 <- p7 +
+    geom_area(data =subset(df6,x< -sd*0.7),aes(x=x,y=d),fill=color_area[1]) +
+    geom_area(data =subset(df6,x>sd*0.7),aes(x=x,y=d),fill=color_area[1])
+    
+  p8
+  
+  p9 <- p8 +
+    geom_area(data =subset(df6,x< -2*sd*0.7),aes(x=x,y=d),fill=color_area[2]) +
+    geom_area(data =subset(df6,x> 2*sd*0.7),aes(x=x,y=d),fill=color_area[2])
+  p9
+  p10 <- p9 +
+    geom_area(data =subset(df6,x< -3*sd*0.7),aes(x=x,y=d),fill=color_area[3]) +
+    geom_area(data =subset(df6,x> 3*sd*0.7),aes(x=x,y=d),fill=color_area[3])
+  p10
+  
+  p11<- p10 +
+    geom_area(data =subset(df6,x< -4*sd*0.7),aes(x=x,y=d),fill=color_area[5]) +
+    geom_area(data =subset(df6,x> 4*sd*0.7),aes(x=x,y=d),fill=color_area[5])
+  p11
+
+  p12 <- p11 + 
+    geom_area(data =subset(df6,x< -5*sd*0.7),aes(x=x,y=d),fill=color_area[6]) +
+    geom_area(data =subset(df6,x> 5*sd*0.7),aes(x=x,y=d),fill=color_area[6])
+  
+  p12
+  
+  p13<- p12 + 
+   geom_vline(aes(xintercept=mean + x_tol))+
+   geom_vline(aes(xintercept=mean - x_tol))
+  p13
+  
+   
+  
+```
+
+## 标准正态分布的6sigma图完整版
+
+```{r hist_6sigma,echo=FALSE,warning=FALSE,fig.height=3,fig.width=9}
+
+  m <- 10000
+  mean <- 0
+  sd <- 1
+  x_tol <- 2.8 # 2.8*sd
+  x_limits <- c(-5*sd*0.8,5*sd*0.8) +mean
+  x_break <- c(-4*sd*0.8,-3*sd*0.8,-2*sd*0.8,-sd*0.8,mean,sd*0.8,2*sd*0.8,3*sd*0.8,4*sd*0.8) +mean
+  x_labls <- expression(-4*sigma,-3*sigma,-2*sigma,-1*sigma,0,1*sigma,2*sigma,3*sigma,4*sigma)
+  color_area <- c("#BFBFCF","#BFCFBF","#BFEFEF","#BFFFFF","#BFBFBF","#C00000")
+  
+  data17 <- round(rnorm(100000,mean,sd),3)
+
+  df17 <- data.frame(x = data17,d= dnorm(data17,mean,sd)) %>% distinct()
+ p17 <- ggplot(df17,aes(x=x,y=d)) + 
+   labs(title=expression(paste("正态分布6",sigma,"区间"))) + geom_line(color = "#186779") +  
+   geom_area(fill="#A2F4BA",alpha = .25) + 
+   scale_x_continuous(limits = x_limits,breaks = x_break,labels = x_labls)+
+   geom_vline(aes(xintercept=0))+
+   geom_area(data =subset(df17,x< -sd*0.7),aes(x=x,y=d),fill=color_area[1]) +
+    geom_area(data =subset(df17,x>sd*0.7),aes(x=x,y=d),fill=color_area[1])+
+    geom_area(data =subset(df17,x< -2*sd*0.7),aes(x=x,y=d),fill=color_area[2]) +
+    geom_area(data =subset(df17,x> 2*sd*0.7),aes(x=x,y=d),fill=color_area[2])+
+    geom_area(data =subset(df17,x< -3*sd*0.7),aes(x=x,y=d),fill=color_area[3]) +
+    geom_area(data =subset(df17,x> 3*sd*0.7),aes(x=x,y=d),fill=color_area[3])+
+    geom_area(data =subset(df17,x< -4*sd*0.7),aes(x=x,y=d),fill=color_area[5]) +
+    geom_area(data =subset(df17,x> 4*sd*0.7),aes(x=x,y=d),fill=color_area[5]) +
+    geom_area(data =subset(df17,x< -5*sd*0.7),aes(x=x,y=d),fill=color_area[6]) +
+    geom_area(data =subset(df17,x> 5*sd*0.7),aes(x=x,y=d),fill=color_area[6])+ 
+   geom_vline(aes(xintercept=mean + x_tol))+
+   geom_vline(aes(xintercept=mean - x_tol))+
+   theme_hkw()          
+  
+  p17
+  
+
+```
+
+
+
+## 2sigma提升到3.1sigma
+
+```{r}
+
+  m <- 100000
+  mean <- 0
+  sd <- 0.007
+  x_limits <- c(-7*sd/2,7*sd/2)
+  x_break <- c(-6*sd/2,-5*sd/2,-4*sd/2,-3*sd/2,-2*sd/2,-sd/2,mean,sd/2,2*sd/2,3*sd/2,4*sd/2,5*sd/2,6*sd/2)
+  x_tol<- 0.02    # tol 公差，也即设计标准。
+  
+  data14 <- round(rnorm(100000,mean,sd),4)  
+  df14 <- data.frame(x = data14,d= dnorm(data14,mean,sd))    %>% distinct()
+
+  
+
+```
+
 
 
 ## 均值
@@ -100,7 +340,11 @@ kable(norm.data,format = "html",caption = "某工件的尺寸测量值x")
 
 ```
 
-## 偏差
+## 方差
+
+### 偏差
+
+偏差反映的是某一个值与均值的偏离程度。在生产过程中，偏差超过了设定的公差标准时意味该工件的不合格。
 
 ```{r echo=FALSE}
 #norm.data <- data.frame(x1=x1,d1 = dnorm(data1,8,3),sd_group="sd1",group ="第1组") 

@@ -54,15 +54,14 @@ p5
 
 ```{r}
 m <- 10000
-randNorm1<- round(rnorm(m,0,1),2) 
-norm.data1 <- data.frame(x=randNorm1,y=dnorm(randNorm1,0,1) ,g="group1") 
-# randNorm2<- round(rnorm(m,0,2),2) 
+randNorm1<- round(rnorm(m,8,0.5),2) 
+norm.data1 <- data.frame(x=randNorm1,y=dnorm(randNorm1,8,0.5) ,g="group1") 
+# randNorm2<- round(rnorm(m,0,2),2)  
 # randDensity2 <- dnorm(randNorm2,0,2) 
 # norm.data2 <- data.frame(x=randNorm2,y=randDensity2,g ="group2") 
 # norm.data3 <- bind_rows(norm.data1,norm.data2) 
-
-ggplot(norm.data1,aes(x=x,y=y))+
-  geom_histogram(aes(y=..density..),color ="blue",alpha = .25,fill="green",binwidth = .5) +
+head(norm.data1)
+ggplot(norm.data1,aes(x=x,y=y))+geom_histogram(aes(y=..density..),color ="blue",alpha = .25,fill="green",binwidth = .25) +
   geom_line() 
   
   #geom_point(color = "red") 
