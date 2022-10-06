@@ -294,7 +294,8 @@ grid.arrange(p8,p9,p10,p11,p12,p13,nrow = 6,ncol=1)
   df17$g <- "df17"
   
   p17 <- ggplot(df17,aes(x=x,y=d)) + 
-   labs(title=expression(paste("正态分布6",sigma,"区间"))) + geom_line(color = color_area[1]) +  
+   labs(title=expression(paste("正态分布6",sigma,"区间"))) + 
+    geom_line(color = color_area[1]) +  
    geom_area(fill=color_area[1]) + 
    scale_x_continuous(limits = x_limits,breaks = x_break,labels = x_labls)+
    scale_y_continuous(limits = c(0,0.8),breaks = c(0,0.2,0.4,0.6,0.8))+
@@ -385,18 +386,18 @@ sd <- 0.8
 ## 3条密度曲线分布图
 
 ```{r dnorm_3,fig.height=3,fig.width=9}
-df20 <- bind_rows(df17,df18,df19)
+  df20 <- bind_rows(df17,df18,df19)
   
   p20 <- ggplot(df20,aes(x=x,y=d,color = g)) + 
-    labs(title=expression(paste("正态分布6",sigma,"区间"))) + 
-    geom_line() +  
-    geom_area(fill=color_area[1]) + 
-   scale_x_continuous(limits = x_limits)+
-      scale_y_continuous(limits = c(0,1.5),breaks = c(0,0.3,0.6,0.9,1.2,1.5))+
-   geom_vline(aes(xintercept=0))+
-   geom_vline(aes(xintercept=mean + x_tol))+
-   geom_vline(aes(xintercept=mean - x_tol))+
-   theme_hkw()   
+  labs(title=expression(paste("正态分布6",sigma,"区间"))) + 
+  geom_line() +  
+  geom_area(fill=color_area[1]) + 
+  scale_x_continuous(limits = x_limits)+
+  scale_y_continuous(limits = c(0,1.5),breaks = c(0,0.3,0.6,0.9,1.2,1.5))+
+  geom_vline(aes(xintercept=0))+
+  geom_vline(aes(xintercept=mean + x_tol))+
+  geom_vline(aes(xintercept=mean - x_tol))+
+  theme_hkw()   
   
   p20
   
