@@ -3,23 +3,33 @@ title: "norm_in_SPC_Presentation"
 author: "何开文"
 date: "2022-10-15"
 output:
-  powerpoint_presentation: 
-    toc: TRUE
-    toc_depth: 2
-    number_sections: TRUE
-    reference_doc: ./potx/norm_test.potx
+  dudaozhidaodoc::mp_dudaozhidao_html:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+  ioslides_presentation: default
   slidy_presentation: default
   beamer_presentation: default
+  powerpoint_presentation:
+    toc: yes
+    toc_depth: 2
+    number_sections: yes
+    reference_doc: ./potx/norm_test.potx
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,fig.height=4,fig.width=8)
 library(tidyverse)
 library(kableExtra)
 library(gridExtra) 
 library(ggthemes)
 library(purrr)
 require(graphics)
+library(RColorBrewer)
+library(gganimate)
+library(rticles)
+
 
 
 source("~/LearningNotes_R/theme_hkw_custom.R") #导入自定义ggtheme
@@ -28,47 +38,39 @@ source("~/LearningNotes_R/theme_hkw_custom.R") #导入自定义ggtheme
 ```
 
 
-# 统计学基础
+## 统计学
 
 ## 两种基本思维
 
+两个思维对理解统计学方法非常重要：*极限*和*抽样*。
+
+### 极限
   世界是无穷无尽限的，比如全世界所有的人体重、身高的数据，即使足够的人手和资源为每个人测量，也会因为生老病死而无法做到。
-  因此有两个思维对理解统计学方法非常重要：抽样和极限。
+ 数学家解决这个问题的办法是利用微积分的思维把统计到的数据规律推广到*极限*，因此，统计中的基本定理和公式是以积分求极限的方式来推导和证明的，最常见的描绘是"当n趋向于无穷时..."
 
 ### 抽样
 
  通过有代表性的部分——**样本**来描绘数据的总体特性，由部分到全貌，由个别到一般，是统计学解决问题的基本逻辑，也是其价值所在。
  我们能统计到的数据是部分，而我们描绘是总体的特性，我们用来解决问题的也是总体的特性。
  
- 
-### 极限
-
- 数学家解决这个问题的办法是利用微积分的思维把统计到的数据规律推广到*极限*，因此，统计中的基本定理和公式是以积分求极限的方式来推导和证明的，最常见的描绘是"当n趋向于无穷时..."
-
-## 基本定义1
+## 数学基本概念
 
 基础概念是逻辑推理的基础，定义了逻辑的范畴。在我们即要描绘的正态分布这个最重要的数据分布形态中，最重要的基本概念有三个，*级数*、*均值*、*概率密度*。
-
-
 
 ### 级数
 
 如果给定一个数列u1,u2,u3,…,un,…，则表达式u1＋u2＋u3＋…＋un＋… 叫作（常数项）无穷级数，简称（常数项）级数，记作![](./pic/jishu.png), 即![](./pic/jishu2.png)
 其中u1,u2,u3,…,un,…叫作级数的项，u1叫作级数的首项，级数的第n项un叫作级数的通项或一般项.
 
-### 概率密度
+### 概率密度（Probability Density）
 
-概率密度（Probability Density），指事件随机发生的几率。概率密度等于一段区间（事件的取值范围）的概率除以该段区间的长度，它的值是非负的，可以很大也可以很小。
-
-概率密度，随机变量落在一个区间内的概率与这个区间大小的比值在区间大小趋向于0时的极限。
+*定义*：对于随机变量X的分布函数F(x)，如果存在非负可积函数f(x)，使得对任意实数x，有![](./pic/概率密度1.svg)，则X为连续型随机变量，称f(x)为X的概率密度函数，简称为概率密度。
 ![](./pic/概率密度2.webp)
 
+*几何意义*：随机变量落在一个区间内的概率与这个区间大小的比值在区间大小趋向于0时的极限。
+指事件随机发生的几率。概率密度等于一段区间（事件的取值范围）的概率除以该段区间的长度，它的值是非负的，可以很大也可以很小。
 
-定义：对于随机变量X的分布函数F(x)，如果存在非负可积函数f(x)，使得对任意实数x，有![](./pic/概率密度1.svg)
-
-则X为连续型随机变量，称f(x)为X的概率密度函数，简称为概率密度。
-
-## 基本定义2
+## 统计学概念
 
 ### 均值
 
@@ -83,130 +85,174 @@ source("~/LearningNotes_R/theme_hkw_custom.R") #导入自定义ggtheme
 
 ### 方差
 
-  方差是一个均值（数学期望），它是一个特殊级数（无穷个项的均值，这个
-  
- *定义：*
+  方差是一个均值（数学期望），它是一个特殊级数（无穷个项的均值，这个。
 
 
 # 正态分布
 
-```{r variable,echo=FALSE,warning=FALSE,fig.height=6,fig.width=9}
+## 通用变量
+
+```{r variable,echo=FALSE,warning=FALSE}
 
 ## 通用变量
 
 set.seed(2025)
   m <- 10000
   mean <- 0
+  mean0 <- 0
   sd <- 1
-  y_limits <- c(0,0.6)
+  sd10 <-1
+  sd08 <- 0.8
+  sd12 <- 1.2
+  
+  prob08<- 0.8
+  y_limits <- c(0,0.62)
   y_breaks <- c(0,0.2,0.4,0.6)
   x_tol <- 2.8*0.8 # 2.8*sd
-  x_limits <- c(-5*sd*0.8,5*sd*0.8) +mean
+  x_limits <- c(-5*sd*0.8,5*sd*0.8) +mean0
+  x_limits4 <- c(-4.5*sd*0.8,4.5*sd*0.8) +mean0
+  x_limits5 <- c(-5.5*sd*0.8,5.5*sd*0.8) +mean0
+  x_limits6 <- c(-6.5*sd*0.8,6.5*sd*0.8) +mean0
   x_break <- c(-4*sd*0.8,-3*sd*0.8,-2*sd*0.8,-sd*0.8,mean,sd*0.8,2*sd*0.8,3*sd*0.8,4*sd*0.8) +mean
+  x_breaks3 <- seq(-3,3,1)+mean0
+  x_breaks4 <- seq(-4,4,1)+mean0
+  x_breaks6 <- seq(-6,6,1)+mean0
+  
+  x_breaks3p <- seq(-3,3,1)*prob08+mean0
+  x_breaks4p <- seq(-4,4,1)*prob08+mean0
+  x_breaks6p <- seq(-6,6,1)*prob08+mean0
+  
   x_labls <- expression(-4*sigma,-3*sigma,-2*sigma,-1*sigma,0,1*sigma,2*sigma,3*sigma,4*sigma)
+  x_labels3 <- expression(-3*sigma,-2*sigma,-1*sigma,0,1*sigma,2*sigma,3*sigma)
+  x_labels4 <- expression(-4*sigma,-3*sigma,-2*sigma,-1*sigma,0,1*sigma,2*sigma,3*sigma,4*sigma)
+  x_labels6 <- expression(-6*sigma,-5*sigma,-4*sigma,-3*sigma,-2*sigma,-1*sigma,0,
+                          1*sigma,2*sigma,3*sigma,4*sigma,5*sigma,6*sigma)
+  
   color_area <- c("#9AD9E6","#C7EAF1","#E4F5F8","#FF9999","#CC0000","#A50021")
+  
+  x001 <- seq(-1,1,0.0001)*6.1*sd
+  
 ```
 
 ## 正态分布数据的分布图示
 
-```{r dnorm_sigma,echo=FALSE,warning=FALSE,fig.height=2,fig.width=4}
+```{r dnorm_sigma,echo=FALSE,warning=FALSE}
 #渐浅的灰，"#BFBFBF","#D9D9D9","#F2F2F2"
   
-  data17 <- round(rnorm(100000,mean,sd),3)
+ #  data17 <- rnorm(100000,mean,sd)
+ # 
+ #  df17 <- data.frame(x = data17,d= dnorm(data17,mean,sd))
+ # p17 <- ggplot(df17,aes(x=x,y=d)) +
+ #   labs(title=expression(paste("正态分布6",sigma,"区间"))) +
+ #   geom_line(color = "#186779") +
+ #   geom_area(fill=color_area[1]) +
+ #   scale_x_continuous(limits = x_limits,breaks = x_breaks3,labels = x_labels3)+
+ #   geom_segment(aes(x=0,y=0,xend=0,yend=0.4))+
+ #    geom_area(data =subset(df17,x< -3*sd*0.8),aes(x=x,y=d),fill=color_area[2]) +
+ #    geom_area(data =subset(df17,x> 3*sd*0.8),aes(x=x,y=d),fill=color_area[2])+
+ #   theme_hkw()
+ # 
+ #  p17
 
-  df17 <- data.frame(x = data17,d= dnorm(data17,mean,sd)) %>% distinct()
- p17 <- ggplot(df17,aes(x=x,y=d)) + 
-   labs(title=expression(paste("正态分布6",sigma,"区间"))) + 
+  df00 <- data.frame(x=x001,density=dnorm(x001,mean,sd10),qc_level= "sd10",color = "blue")
+  p0 <- ggplot(df00,aes(x=x,y=density)) +
+    labs(title=expression(paste("正态分布6",sigma,"区间"))) + 
    geom_line(color = "#186779") +  
    geom_area(fill=color_area[1]) + 
-   scale_x_continuous(limits = x_limits,breaks = x_break,labels = x_labls)+
+   scale_x_continuous(limits = x_limits,breaks = x_breaks3,labels = x_labels3)+
    geom_segment(aes(x=0,y=0,xend=0,yend=0.4))+
-    geom_area(data =subset(df17,x< -3*sd*0.8),aes(x=x,y=d),fill=color_area[2]) +
-    geom_area(data =subset(df17,x> 3*sd*0.8),aes(x=x,y=d),fill=color_area[2])+
-   theme_hkw()          
+    geom_area(data =subset(df00,x< -3*sd*0.8),aes(x=x,y=density),fill=color_area[2]) +
+    geom_area(data =subset(df00,x> 3*sd*0.8),aes(x=x,y=density),fill=color_area[2])+
+   theme_hkw() 
+
+  p0
   
-  p17
+  #grid.arrange(p0,p17,nrow = 2,ncol = 1)
   
 
 ```
-
-
-
 它是数据统计的一种分布趋势的规律，这个规律是这样的。
-
 频数柱状图
 密度柱状图
 
-```{r}
-
-
-```
 
 ## 从频度分布到概率密度曲线
 
-```{r histgram,echo=FALSE,warning=FALSE,fig.height=6,fig.width=4.5}
+```{r histgram,echo=FALSE,warning=FALSE,fig.height=12}
 set.seed(2028)
 
-  data1 <- round(rnorm(500,mean,sd),3)
+  data1 <- rnorm(500,mean,sd)
   df1 <- data.frame(x = data1)
   kable(head(df1,10),caption = "10个数据")
   
   p1 <- ggplot(df1,aes(x=x)) + 
     geom_histogram(color ="#17C2B2",fill=color_area[1],binwidth = 0.3) + 
     labs(title= "100个数据的频数分布",x="取值区间",y="数值个数")  +
-    scale_x_continuous(limits = x_limits,breaks = x_break)+
+    scale_x_continuous(limits = x_limits6,breaks = x_breaks4)+
     theme_hkw()
   
   p21 <- ggplot(df1,aes(x=x)) + 
     geom_histogram(aes(y=..density..),color ="#17C2B2",fill=color_area[1],binwidth = 0.3) + 
     labs(title= "100个数据的频数分布",x="取值区间",y="数值个数")  +
-    scale_x_continuous(limits = x_limits,breaks = x_break)+
+    scale_x_continuous(limits = x_limits6,breaks = x_breaks4)+
     theme_hkw()
 
-data2 <- round(rnorm(1000,mean,sd),3)
+data2 <- rnorm(1000,mean,sd)
   df2 <- data.frame(x = data2)
   p2 <- ggplot(df2,aes(x=x)) + 
     geom_histogram(color ="#17C2B2",fill=color_area[1],binwidth =0.3) +
     labs(title="1000个数据的频数分布",x="取值区间",y="数值个数")  +
-    scale_x_continuous(limits = x_limits,breaks = x_break)+
+    scale_x_continuous(limits = x_limits6,breaks = x_breaks4)+
   theme_hkw()
   
   p22 <- ggplot(df2,aes(x=x)) + 
     geom_histogram(aes(y=..density..),color ="#17C2B2",fill=color_area[1],binwidth =0.3) +
     labs(title="1000个数据的频数分布",x="取值区间",y="数值个数")  +
-    scale_x_continuous(limits = x_limits,breaks = x_break)+
+    scale_x_continuous(limits = x_limits6,breaks = x_breaks4)+
   theme_hkw()
   
-  data3 <- round(rnorm(10000,mean,sd),3)
+  data3 <- rnorm(10000,mean,sd)
   df3 <- data.frame(x = data3)
   p3 <- ggplot(df3,aes(x=x)) + 
     geom_histogram(color ="#17C2B2",fill=color_area[1],binwidth = 0.1) +
     labs(title="10000个数据的频数分布",x="取值区间",y="数值个数")  +
-    scale_x_continuous(limits = x_limits,breaks = x_break)+
+    scale_x_continuous(limits = x_limits6,breaks = x_breaks4)+
   theme_hkw()
   
   p23 <- ggplot(df3,aes(x=x)) + 
     geom_histogram(aes(y=..density..),color ="#17C2B2",fill=color_area[1],binwidth = 0.1) +
     labs(title="10000个数据的频数分布")  +
-    scale_x_continuous(limits = x_limits,breaks = x_break)+
+    scale_x_continuous(limits = x_limits6,breaks = x_breaks4)+
   theme_hkw()
  
                
-  data4 <- round(rnorm(100000,mean,sd),3)
-  df4 <- data.frame(x = data4,d = dnorm(data4,mean,sd))             
+  data4 <- rnorm(100000,mean,sd)
+  df4 <- data.frame(x = data4,density = dnorm(data4,mean,sd))             
   p4 <- ggplot(df4,aes(x=x)) + 
     geom_histogram(color ="#17C2B2",fill=color_area[1],binwidth = 0.033)  +
     labs(title="100000个正态分布数据的频数分布图",x="取值区间",y="数值个数") +
-    scale_x_continuous(limits = x_limits,breaks = x_break)+
+    scale_x_continuous(limits = x_limits6,breaks = x_breaks4)+
     theme_hkw()
   
    p24 <- ggplot(df4,aes(x=x)) + 
     geom_histogram(aes(y=..density..),color ="#17C2B2",fill=color_area[1],binwidth = 0.033)  +
     labs(title="100000个正态分布数据的频数分布图",x="取值区间",y="数值个数") +
-    scale_x_continuous(limits = x_limits,breaks = x_break)+
+    scale_x_continuous(limits = x_limits6,breaks = x_breaks4)+
     theme_hkw()
-  
-  grid.arrange(p2,p3,p4,nrow=3,ncol=1)
+```
+
+### 数据一览
+
+```{r histgram_data,echo=FALSE}
+    str(df4)
+   summary(df4)
+   
+```
+
+### 排列输出
+
+```{r histgram_grid_p,echo=FALSE,warning=FALSE,fig.height=12}
+grid.arrange(p2,p3,p4,nrow=3,ncol=1)
   grid.arrange(p22,p23,p24,nrow = 3,ncol=1)
   
 ```
@@ -216,235 +262,228 @@ data2 <- round(rnorm(1000,mean,sd),3)
 ## 概率密度柱状态图叠加概率密度曲线
 
 
-```{r hist_line,echo=FALSE,warning=FALSE,fig.height=6,fig.width=4.5}
+```{r hist_line,echo=FALSE,warning=FALSE,fig.height =12}
+# 
+#   x_limits <- c(-7*sd*0.8,7*sd*0.8)
+#   x_break <- c(-6*sd*0.8,-5*sd*0.8,-4*sd*0.8,-3*sd*0.8,-2*sd*0.8,-sd*0.8,mean,sd*0.8,2*sd*0.8,3*sd*0.8,4*sd*0.8,5*sd*0.8,6*sd*0.8)
+#   x_labls<- expression(-6*sigma,-5*sigma,-4*sigma,-3*sigma,-2*sigma,-1*sigma,0,1*sigma,2*sigma,3*sigma,4*sigma,5*sigma,6*sigma)
 
-  x_limits <- c(-7*sd*0.8,7*sd*0.8)
-  x_break <- c(-6*sd*0.8,-5*sd*0.8,-4*sd*0.8,-3*sd*0.8,-2*sd*0.8,-sd*0.8,mean,sd*0.8,2*sd*0.8,3*sd*0.8,4*sd*0.8,5*sd*0.8,6*sd*0.8)
-  x_labls<- expression(-6*sigma,-5*sigma,-4*sigma,-3*sigma,-2*sigma,-1*sigma,0,1*sigma,2*sigma,3*sigma,4*sigma,5*sigma,6*sigma)
-p5 <- ggplot(df4,aes(x=x,y=d)) + 
+p5 <- ggplot(df4,aes(x=x,y=density)) + 
     geom_histogram(aes(y=..density..),color ="#17C2B2",fill=color_area[1],binwidth = 0.06)  +
     labs(title=expression(paste("10万个正态分布数值的概率密度柱状图叠加概率密度曲线在6个",sigma,"区间的分布")),bold = TRUE ) +
-    scale_x_continuous(limits = x_limits,breaks = x_break,labels = x_labls)+
+    scale_x_continuous(limits = x_limits6,breaks = x_breaks6,labels = x_labels6)+
     theme_hkw() +
   geom_line(color = "#12414A") 
  
- 
- df6 <- df4 %>% distinct()
- p6 <- ggplot(df6,aes(x=x,y=d)) + 
+ df6 <- df4
+ p6 <- ggplot(df6,aes(x=x,y=density)) + 
     labs(title=expression(paste("10万个正态分布数值的概率密度曲线在6个",sigma,"区间的分布"))) + 
    geom_line(color = "#12414A") +    
    geom_area(fill=color_area[1]) + 
-   scale_x_continuous(limits = x_limits,breaks = x_break,labels = x_labls)+
+   scale_x_continuous(limits = x_limits6,breaks = x_breaks6,labels = x_labels6)+
    theme_hkw()
 
  
- p7 <- p6 + geom_vline(aes(xintercept=0),color = "#12414A")
+ #p7 <- p6 + geom_vline(aes(xintercept=0),color = "#12414A")
  
- grid.arrange(p5,p6,p7,nrow=3,ncol=1)
+   p37 <- ggplot(df00,aes(x=x,y=density)) +
+    labs(title=expression(paste("正态分布6",sigma,"区间"))) + 
+   geom_line(color = "#186779") +  
+   geom_area(fill=color_area[1]) + 
+   scale_x_continuous(limits = x_limits6,breaks = x_breaks6,labels = x_labels6)+
+   geom_segment(aes(x=0,y=0,xend=0,yend=0.4))+
+   theme_hkw() 
+
+ 
+ grid.arrange(p5,p6,p37,nrow=3,ncol=1)
  
 ```
 
 ## 正态分布的标准差sigma
 
 
-```{r hist_area,echo=FALSE,warning=FALSE,fig.height=0.9,fig.width=1.2}
-p8 <- p7 +
-    geom_area(data =subset(df6,x< -sd*0.8),aes(x=x,y=d),fill=color_area[2]) +
-    geom_area(data =subset(df6,x>sd*0.8),aes(x=x,y=d),fill=color_area[2])
+```{r hist_area}
+p8 <- p37 +
+    geom_area(data =subset(df00,x< -sd*0.8),aes(x=x,y=density),fill=color_area[2]) +
+    geom_area(data =subset(df00,x>sd*0.8),aes(x=x,y=density),fill=color_area[2])
   
   p9 <- p8 +
-    geom_area(data =subset(df6,x< -2*sd*0.8),aes(x=x,y=d),fill=color_area[3]) +
-    geom_area(data =subset(df6,x> 2*sd*0.8),aes(x=x,y=d),fill=color_area[3])
+    geom_area(data =subset(df00,x< -2*sd*0.8),aes(x=x,y=density),fill=color_area[3]) +
+    geom_area(data =subset(df00,x> 2*sd*0.8),aes(x=x,y=density),fill=color_area[3])
 
   p10 <- p9 +
-    geom_area(data =subset(df6,x< -3*sd*0.8),aes(x=x,y=d),fill=color_area[4]) +
-    geom_area(data =subset(df6,x> 3*sd*0.8),aes(x=x,y=d),fill=color_area[4])
+    geom_area(data =subset(df00,x< -3*sd*0.8),aes(x=x,y=density),fill=color_area[4]) +
+    geom_area(data =subset(df00,x> 3*sd*0.8),aes(x=x,y=density),fill=color_area[4])
 
   
-  p11<- p10 +
-    geom_area(data =subset(df6,x< -4*sd*0.8),aes(x=x,y=d),fill=color_area[5]) +
-    geom_area(data =subset(df6,x> 4*sd*0.8),aes(x=x,y=d),fill=color_area[5])
+  # p11<- p10 +
+  #   geom_area(data =subset(df00,x< -4*sd*0.8),aes(x=x,y=density),fill=color_area[5]) +
+  #   geom_area(data =subset(df00,x> 4*sd*0.8),aes(x=x,y=density),fill=color_area[5])
+  # 
+  # p12 <- p11 + 
+  #   geom_area(data =subset(df00,x< -5*sd*0.8),aes(x=x,y=density),fill=color_area[6]) +
+  #   geom_area(data =subset(df00,x> 5*sd*0.8),aes(x=x,y=density),fill=color_area[6])
+  # 
 
-  p12 <- p11 + 
-    geom_area(data =subset(df6,x< -5*sd*0.8),aes(x=x,y=d),fill=color_area[6]) +
-    geom_area(data =subset(df6,x> 5*sd*0.8),aes(x=x,y=d),fill=color_area[6])
   
-
+  p11<- p10 + 
+    geom_segment(aes(x=-mean+x_tol,y=0,xend=mean+x_tol,yend=0.2))+
+    geom_segment(aes(x=-mean-x_tol,y=0,xend=mean-x_tol,yend=0.2))
   
-  p13<- p12 + 
-   geom_vline(aes(xintercept=mean + x_tol))+
-   geom_vline(aes(xintercept=mean - x_tol))
-
+   p11
 
 ```
 
 
-```{r hist_area_arrange,echo=FALSE,warning=FALSE,fig.height=6,fig.width=9}
+```{r hist_area_arrange,fig.height=8,fig.width=18}
   
-  grid.arrange(p8,p9,p10, nrow = 3, ncol= 1)
-  grid.arrange(p11,p12,p13, nrow = 3, ncol= 1)
+  grid.arrange(p8,p9,p10,p11, nrow = 2, ncol= 2)
+  
 ```
 
 ## 标准正态分布的6sigma图完整版
 
-```{r hist_6sigma,echo=FALSE,warning=FALSE,fig.height=0.3,fig.width=0.9}
+```{r hist_6sigma}
 
-  sd<- 1
-  data17 <- round(rnorm(100000,mean,sd),3)
-
-  df17 <- data.frame(x = data17,d= dnorm(data17,mean,sd)) %>% distinct()
-  df17$g <- "df17"
   
-  p17 <- ggplot(df17,aes(x=x,y=d)) + 
+
+  
+  p17 <- ggplot(df00,aes(x=x,y=density)) + 
    labs(title=expression(paste("正态分布6",sigma,"区间"))) + 
     geom_line(color = color_area[1]) +  
    geom_area(fill=color_area[1]) + 
-   scale_x_continuous(limits = x_limits,breaks = x_break,labels = x_labls)+
+   scale_x_continuous(limits = x_limits,breaks = x_breaks4,labels = x_labels4)+
    scale_y_continuous(limits = c(0,0.8),breaks = c(0,0.2,0.4,0.6,0.8))+
-   geom_vline(aes(xintercept=0))+
-   geom_area(data =subset(df17,x< -sd*0.8),aes(x=x,y=d),fill=color_area[2]) +
-    geom_area(data =subset(df17,x>sd*0.8),aes(x=x,y=d),fill=color_area[2])+
-    geom_area(data =subset(df17,x< -2*sd*0.8),aes(x=x,y=d),fill=color_area[3]) +
-    geom_area(data =subset(df17,x> 2*sd*0.8),aes(x=x,y=d),fill=color_area[3])+
-    geom_area(data =subset(df17,x< -3*sd*0.8),aes(x=x,y=d),fill=color_area[4]) +
-    geom_area(data =subset(df17,x> 3*sd*0.8),aes(x=x,y=d),fill=color_area[4])+
-    geom_area(data =subset(df17,x< -4*sd*0.8),aes(x=x,y=d),fill=color_area[5]) +
-    geom_area(data =subset(df17,x> 4*sd*0.8),aes(x=x,y=d),fill=color_area[5]) +
-    geom_area(data =subset(df17,x< -5*sd*0.8),aes(x=x,y=d),fill=color_area[6]) +
-    geom_area(data =subset(df17,x> 5*sd*0.8),aes(x=x,y=d),fill=color_area[6])+ 
-   geom_vline(aes(xintercept=mean + x_tol))+
-   geom_vline(aes(xintercept=mean - x_tol))+
+    geom_area(data =subset(df00,x< -sd10*0.8),aes(x=x,y=density),fill=color_area[2]) +
+    geom_area(data =subset(df00,x> sd10*0.8),aes(x=x,y=density),fill=color_area[2])+
+    geom_area(data =subset(df00,x< -2*sd10*0.8),aes(x=x,y=density),fill=color_area[3]) +
+    geom_area(data =subset(df00,x> 2*sd10*0.8),aes(x=x,y=density),fill=color_area[3])+
+    geom_area(data =subset(df00,x< -3*sd10*0.8),aes(x=x,y=density),fill=color_area[4]) +
+    geom_area(data =subset(df00,x> 3*sd10*0.8),aes(x=x,y=density),fill=color_area[4])+
+    geom_segment(aes(x=-0,y=0,xend=0,yend=dnorm(0,mean,sd10)))+
+    geom_segment(aes(x=-mean+x_tol,y=0,xend=mean+x_tol,yend=0.3))+
+    geom_segment(aes(x=-mean-x_tol,y=0,xend=mean-x_tol,yend=0.3))+
    theme_hkw()   
   p17
   
 
 
 ```
-```{r}
-economics_long %>% group_by(variable) %>% summarise(n())
 
-```
 
 
 
 ## 2sigma提升到3.1sigma
 
-```{r echo=FALSE,fig.height=9,fig.width=9}
+```{r echo=FALSE,fig.height=12}
 
+  df08 <- data.frame(x=x001,density = dnorm(x001,mean,sd08),qc_level= "sd08",color="green")
+  df12 <- data.frame(x=x001,density = dnorm(x001,mean,sd12),qc_level= "sd12",color="red")
 
-
-  sd08<- 0.8
-  x_breaks <- c(-4*sd*0.8,-3*sd*0.8,-2*sd*0.8,-sd*0.8,mean,sd*0.8,2*sd*0.8,3*sd*0.8,4*sd*0.8) +mean
-  
-  data17 <- round(rnorm(10000,mean,sd08),2) 
-
-  df17 <- data.frame(x = data17,sd08= dnorm(data17,mean,sd08)) %>% distinct()
-  df17$g <- "df17"
-  
-  p17 <- ggplot(df17,aes(x=x,y=sd08)) + 
+  p210 <- ggplot(df00,aes(x=x,y=density)) + 
    labs(title=expression(paste("正态分布6",sigma,"区间"))) + 
     geom_line(color = color_area[1]) +  
    geom_area(fill=color_area[1]) + 
-   scale_x_continuous(limits = x_limits,breaks = x_breaks)+
+   scale_x_continuous(limits = x_limits6,breaks = x_breaks6)+
    scale_y_continuous(limits = y_limits,breaks = y_breaks)+
-       geom_area(data =subset(df17,x< -sd*0.8),aes(x=x,y=sd08),fill=color_area[2]) +
-    geom_area(data =subset(df17,x>sd*0.8),aes(x=x,y=sd08),fill=color_area[2])+
-    geom_area(data =subset(df17,x< -2*sd*0.8),aes(x=x,y=sd08),fill=color_area[3]) +
-    geom_area(data =subset(df17,x> 2*sd*0.8),aes(x=x,y=sd08),fill=color_area[3])+
-    geom_area(data =subset(df17,x< -3*sd*0.8),aes(x=x,y=sd08),fill=color_area[4]) +
-    geom_area(data =subset(df17,x> 3*sd*0.8),aes(x=x,y=sd08),fill=color_area[4])+
-    geom_area(data =subset(df17,x< -4*sd*0.8),aes(x=x,y=sd08),fill=color_area[5]) +
-    geom_area(data =subset(df17,x> 4*sd*0.8),aes(x=x,y=sd08),fill=color_area[5]) +
-    geom_area(data =subset(df17,x< -5*sd*0.8),aes(x=x,y=sd08),fill=color_area[6]) +
-    geom_area(data =subset(df17,x> 5*sd*0.8),aes(x=x,y=sd08),fill=color_area[6])+ 
-   geom_vline(aes(xintercept=0))+
-   geom_vline(aes(xintercept=mean + x_tol))+
-   geom_vline(aes(xintercept=mean - x_tol))+
+       geom_area(data =subset(df00,x< -sd10*0.8),aes(x=x,y=density),fill=color_area[2]) +
+    geom_area(data =subset(df00,x>sd10*0.8),aes(x=x,y=density),fill=color_area[2])+
+    geom_area(data =subset(df00,x< -2*sd10*0.8),aes(x=x,y=density),fill=color_area[3]) +
+    geom_area(data =subset(df00,x> 2*sd10*0.8),aes(x=x,y=density),fill=color_area[3])+
+    geom_area(data =subset(df00,x< -3*sd10*0.8),aes(x=x,y=density),fill=color_area[4]) +
+    geom_area(data =subset(df00,x> 3*sd10*0.8),aes(x=x,y=density),fill=color_area[4])+
+    geom_area(data =subset(df00,x< -4*sd*0.8),aes(x=x,y=density),fill=color_area[5]) +
+    geom_area(data =subset(df00,x> 4*sd10*0.8),aes(x=x,y=density),fill=color_area[5]) +
+    geom_area(data =subset(df00,x< -5*sd10*0.8),aes(x=x,y=density),fill=color_area[6]) +
+    geom_area(data =subset(df00,x> 5*sd10*0.8),aes(x=x,y=density),fill=color_area[6])+ 
+    geom_segment(aes(x=-0,y=0,xend=0,yend=dnorm(0,mean,sd10)))+
+    geom_segment(aes(x=-mean+x_tol,y=0,xend=mean+x_tol,yend=0.3))+
+    geom_segment(aes(x=-mean-x_tol,y=0,xend=mean-x_tol,yend=0.3))+
    theme_hkw()   
-
-sd10 <- 1
-  x_breaks <- c(-4*sd*0.8,-3*sd*0.8,-2*sd*0.8,-sd*0.8,mean,sd*0.8,2*sd*0.8,3*sd*0.8,4*sd*0.8) +mean
-  data18 <- rnorm(10000,mean,sd)
-
-  df18 <- data.frame(x = data18,sd10= dnorm(data18,mean,sd10))%>% distinct()
-  df18$g <-"df18"
   
   
-  p18 <- ggplot(df18,aes(x=x,y=sd10)) + 
+  p208 <- ggplot(df08,aes(x=x,y=density)) + 
    labs(title=expression(paste("正态分布6",sigma,"区间"))) + geom_line(color = color_area[1]) +  
    geom_area(fill=color_area[1]) + 
-   scale_x_continuous(limits = x_limits,breaks = x_breaks)+
+   scale_x_continuous(limits = x_limits6,breaks = x_breaks6)+
    scale_y_continuous(limits = y_limits,breaks = y_breaks)+
-      geom_area(data =subset(df18,x< -sd*0.8),aes(x=x,y=sd10),fill=color_area[2]) +
-    geom_area(data =subset(df18,x>sd*0.8),aes(x=x,y=sd10),fill=color_area[2])+
-    geom_area(data =subset(df18,x< -2*sd*0.8),aes(x=x,y=sd10),fill=color_area[3]) +
-    geom_area(data =subset(df18,x> 2*sd*0.8),aes(x=x,y=sd10),fill=color_area[3])+
-    geom_area(data =subset(df18,x< -3*sd*0.8),aes(x=x,y=sd10),fill=color_area[4]) +
-    geom_area(data =subset(df18,x> 3*sd*0.8),aes(x=x,y=sd10),fill=color_area[4])+
-    geom_area(data =subset(df18,x< -4*sd*0.8),aes(x=x,y=sd10),fill=color_area[5]) +
-    geom_area(data =subset(df18,x> 4*sd*0.8),aes(x=x,y=sd10),fill=color_area[5]) +
-    geom_area(data =subset(df18,x< -5*sd*0.8),aes(x=x,y=sd10),fill=color_area[6]) +
-    geom_area(data =subset(df18,x> 5*sd*0.8),aes(x=x,y=sd10),fill=color_area[6])+ 
-   geom_vline(aes(xintercept=0))+
-   geom_vline(aes(xintercept=mean + x_tol))+
-   geom_vline(aes(xintercept=mean - x_tol))+
+    geom_area(data =subset(df08,x< -sd08*0.8),aes(x=x,y=density),fill=color_area[2]) +
+    geom_area(data =subset(df08,x> sd08*0.8),aes(x=x,y=density),fill=color_area[2])+
+    geom_area(data =subset(df08,x< -2*sd08*0.8),aes(x=x,y=density),fill=color_area[3]) +
+    geom_area(data =subset(df08,x> 2*sd08*0.8),aes(x=x,y=density),fill=color_area[3])+
+    geom_area(data =subset(df08,x< -3*sd08*0.8),aes(x=x,y=density),fill=color_area[4]) +
+    geom_area(data =subset(df08,x> 3*sd08*0.8),aes(x=x,y=density),fill=color_area[4])+
+    geom_segment(aes(x=-0,y=0,xend=0,yend=dnorm(0,mean,sd08)))+
+    geom_segment(aes(x=-mean+x_tol,y=0,xend=mean+x_tol,yend=0.3))+
+    geom_segment(aes(x=-mean-x_tol,y=0,xend=mean-x_tol,yend=0.3))+
    theme_hkw()  
   
-
-  sd12 <- 1.2
-  x_break <- c(-4*sd*0.8,-3*sd*0.8,-2*sd*0.8,-sd*0.8,mean,sd*0.8,2*sd*0.8,3*sd*0.8,4*sd*0.8) +mean
-  data19 <- round(rnorm(10000,mean,sd),2) 
-
-  df19 <- data.frame(x = data19,sd12= dnorm(data19,mean,sd12)) %>% distinct()
-  df19$g <- "df19"
-  
-  p19 <- ggplot(df19,aes(x=x,y=sd12)) + 
-   labs(title=expression(paste("正态分布6",sigma,"区间"))) + geom_line(color = color_area[1]) +  
+  p212 <- ggplot(df12,aes(x=x,y=density)) + 
+   labs(title=expression(paste("p19正态分布6",sigma,"区间"))) + geom_line(color = color_area[1]) +  
    geom_area(fill=color_area[1]) + 
-   scale_x_continuous(limits = x_limits,breaks = x_breaks)+
+   scale_x_continuous(limits = x_limits6,breaks = x_breaks6)+
    scale_y_continuous(limits = y_limits,breaks = y_breaks)+
-       geom_area(data =subset(df19,x< -sd*0.8),aes(x=x,y=sd12),fill=color_area[2]) +
-    geom_area(data =subset(df19,x>sd*0.8),aes(x=x,y=sd12),fill=color_area[2])+
-    geom_area(data =subset(df19,x< -2*sd*0.8),aes(x=x,y=sd12),fill=color_area[3]) +
-    geom_area(data =subset(df19,x> 2*sd*0.8),aes(x=x,y=sd12),fill=color_area[3])+
-    geom_area(data =subset(df19,x< -3*sd*0.8),aes(x=x,y=sd12),fill=color_area[4]) +
-    geom_area(data =subset(df19,x> 3*sd*0.8),aes(x=x,y=sd12),fill=color_area[4])+
-    geom_area(data =subset(df19,x< -4*sd*0.8),aes(x=x,y=sd12),fill=color_area[5]) +
-    geom_area(data =subset(df19,x> 4*sd*0.8),aes(x=x,y=sd12),fill=color_area[5]) +
-    geom_area(data =subset(df19,x< -5*sd*0.8),aes(x=x,y=sd12),fill=color_area[6]) +
-    geom_area(data =subset(df19,x> 5*sd*0.8),aes(x=x,y=sd12),fill=color_area[6])+ 
-    geom_vline(aes(xintercept=0))+
-   geom_vline(aes(xintercept=mean + x_tol))+
-   geom_vline(aes(xintercept=mean - x_tol))+
+    geom_area(data =subset(df12,x< -sd12*0.8),aes(x=x,y=density),fill=color_area[2]) +
+    geom_area(data =subset(df12,x> sd12*0.8),aes(x=x,y=density),fill=color_area[2])+
+    geom_area(data =subset(df12,x< -2*sd12*0.8),aes(x=x,y=density),fill=color_area[3]) +
+    geom_area(data =subset(df12,x> 2*sd12*0.8),aes(x=x,y=density),fill=color_area[3])+
+    geom_area(data =subset(df12,x< -3*sd12*0.8),aes(x=x,y=density),fill=color_area[4]) +
+    geom_area(data =subset(df12,x> 3*sd12*0.8),aes(x=x,y=density),fill=color_area[4])+
+    geom_segment(aes(x=-0,y=0,xend=0,yend=dnorm(0,mean,sd12)))+
+    geom_segment(aes(x=-mean+x_tol,y=0,xend=mean+x_tol,yend=0.3))+
+    geom_segment(aes(x=-mean-x_tol,y=0,xend=mean-x_tol,yend=0.3))+
    theme_hkw() 
   
-    grid.arrange(p17,p18,p19,nrow =3,ncol=1)
+    grid.arrange(p212,p210,p208,nrow =3,ncol=1)
 ```
 
 
 ## 3条密度曲线分布图
 
-```{r dnorm_3, echo=FALSE,fig.height=3,fig.width=9}
+```{r dnorm_3}
 
-#df20 <- df17 %>% left_join( df18,by = "x") %>% left_join(df19,by ="x") %>% filter(!is.na(sd10),!is.na(sd08),!is.na(sd12))  %>% arrange(x)
-   
-data20 <- rnorm(10000,0,1)
- df20 <-data.frame(x=data20,sd10 = dnorm(data20,0,1),sd08 = dnorm(data20,0,0.8),sd12 = dnorm(data20,0,1.2))  %>% distinct() %>% gather("sd","dnorm",-x)
   
-  p20 <- ggplot(df20,aes(x=x,y=dnorm),group= sd) + 
+ df20 <- bind_rows(df00,df08,df12)
+  
+  p220 <- ggplot(df20,aes(x=x,y=density),group= qc_level) + 
   labs(title="标准差分别为0.8、1.0、1.2的正态分布曲线") + 
-  geom_line(aes(color =sd),size = 1.5)  +  
-  scale_x_continuous(limits = c(-4,4))+
-  scale_y_continuous(limits = c(0,0.6),breaks = c(0,0.1,0.2,0.3,0.4,0.5))+
-  geom_vline(aes(xintercept=0))+
-  geom_vline(aes(xintercept=mean + x_tol))+
-  geom_vline(aes(xintercept=mean - x_tol))+
+  geom_line(aes(color =color))  +  
+  scale_x_continuous(limits = x_limits6,breaks = seq(-6,6,2))+
+  scale_y_continuous(limits = y_limits,breaks =y_breaks)+
+    geom_segment(aes(x=-0,y=0,xend=0,yend=dnorm(0,mean,sd08)))+
   theme_hkw()   
   
-  p20
+  p221 <- p220 +
+        geom_segment(aes(x=3*sd12*0.8,y=0,xend=3*sd12*0.8,yend=dnorm(0,mean,sd12)),color = "red")+
+    geom_segment(aes(x=-3*sd12*0.8,y=0,xend=-3*sd12*0.8,yend=dnorm(0,mean,sd12)),color = "red")
+ 
+    
+  p222 <- p221 +
+     geom_segment(aes(x=3*sd10*0.8,y=0,xend=3*sd10*0.8,yend=dnorm(0,mean,sd10)),color = "blue")+
+    geom_segment(aes(x=-3*sd10*0.8,y=0,xend=-3*sd10*0.8,yend=dnorm(0,mean,sd10)),color = "blue")
   
+  p223 <- p222 +
+    geom_segment(aes(x=3*sd08*0.8,y=0,xend=3*sd08*0.8,yend=dnorm(0,mean,sd08)),color = "green")+
+    geom_segment(aes(x=-3*sd08*0.8,y=0,xend=-3*sd08*0.8,yend=dnorm(0,mean,sd08)),color = "green")
   
+p220
+p221
+p222
+p223
+if(FALSE){
+  
+  df21 <- df20 %>% 
+    bind_rows(data.frame(x=x001,density= dnorm(x001,mean= mean,sd=0.9),qc_level = "sd09"),
+              data.frame(x=x001,density= dnorm(x001,mean= mean,sd=1.1),qc_level = "sd11"))
 
+  p224 <- ggplot(df21,aes(x=x,y=density),group= qc_level) + 
+  scale_x_continuous(limits = x_limits6,breaks = seq(-6,6,2))+
+  scale_y_continuous(limits = y_limits,breaks =y_breaks)+
+  geom_line(aes(color =qc_level))  + 
+  theme_hkw()   +
+      labs(title = "{closest_state}") +
+    transition_states(qc_level,transition_length = 5, state_length = 1)
+}
 
 ```
 

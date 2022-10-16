@@ -9,6 +9,7 @@ output:
     toc: yes
     toc_float: yes
 ---
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
@@ -99,6 +100,8 @@ set.seed(2025)
   m <- 10000
   mean <- 0
   sd <- 1
+  y_limits <- c(0,0.6)
+  y_breaks <- c(0,0.2,0.4,0.6)
   x_tol <- 2.8*0.8 # 2.8*sd
   x_limits <- c(-5*sd*0.8,5*sd*0.8) +mean
   x_break <- c(-4*sd*0.8,-3*sd*0.8,-2*sd*0.8,-sd*0.8,mean,sd*0.8,2*sd*0.8,3*sd*0.8,4*sd*0.8) +mean
@@ -286,7 +289,6 @@ grid.arrange(p8,p9,p10,p11,p12,p13,nrow = 6,ncol=1)
 
 ```{r hist_6sigma,echo=FALSE,warning=FALSE,fig.height=3,fig.width=9}
 
-  m <- 10000
   sd<- 1
   data17 <- round(rnorm(100000,mean,sd),3)
 
@@ -316,65 +318,102 @@ grid.arrange(p8,p9,p10,p11,p12,p13,nrow = 6,ncol=1)
   p17
   
 
+
+```
+```{r}
+economics_long %>% group_by(variable) %>% summarise(n())
+
 ```
 
 
 
 ## 2sigma提升到3.1sigma
 
-```{r fig.height=9,fig.width=9}
-sd <- 0.8
-  data18 <- round(rnorm(100000,mean,sd),3)
+```{r echo=FALSE,fig.height=9,fig.width=9}
 
-  df18 <- data.frame(x = data18,d= dnorm(data18,mean,sd)) %>% distinct()
+
+
+  sd08<- 0.8
+  x_breaks <- c(-4*sd*0.8,-3*sd*0.8,-2*sd*0.8,-sd*0.8,mean,sd*0.8,2*sd*0.8,3*sd*0.8,4*sd*0.8) +mean
+  
+  data17 <- round(rnorm(10000,mean,sd08),2) 
+
+  df17 <- data.frame(x = data17,sd08= dnorm(data17,mean,sd08)) %>% distinct()
+  df17$g <- "df17"
+  
+  p17 <- ggplot(df17,aes(x=x,y=sd08)) + 
+   labs(title=expression(paste("正态分布6",sigma,"区间"))) + 
+    geom_line(color = color_area[1]) +  
+   geom_area(fill=color_area[1]) + 
+   scale_x_continuous(limits = x_limits,breaks = x_breaks)+
+   scale_y_continuous(limits = y_limits,breaks = y_breaks)+
+       geom_area(data =subset(df17,x< -sd*0.8),aes(x=x,y=sd08),fill=color_area[2]) +
+    geom_area(data =subset(df17,x>sd*0.8),aes(x=x,y=sd08),fill=color_area[2])+
+    geom_area(data =subset(df17,x< -2*sd*0.8),aes(x=x,y=sd08),fill=color_area[3]) +
+    geom_area(data =subset(df17,x> 2*sd*0.8),aes(x=x,y=sd08),fill=color_area[3])+
+    geom_area(data =subset(df17,x< -3*sd*0.8),aes(x=x,y=sd08),fill=color_area[4]) +
+    geom_area(data =subset(df17,x> 3*sd*0.8),aes(x=x,y=sd08),fill=color_area[4])+
+    geom_area(data =subset(df17,x< -4*sd*0.8),aes(x=x,y=sd08),fill=color_area[5]) +
+    geom_area(data =subset(df17,x> 4*sd*0.8),aes(x=x,y=sd08),fill=color_area[5]) +
+    geom_area(data =subset(df17,x< -5*sd*0.8),aes(x=x,y=sd08),fill=color_area[6]) +
+    geom_area(data =subset(df17,x> 5*sd*0.8),aes(x=x,y=sd08),fill=color_area[6])+ 
+   geom_vline(aes(xintercept=0))+
+   geom_vline(aes(xintercept=mean + x_tol))+
+   geom_vline(aes(xintercept=mean - x_tol))+
+   theme_hkw()   
+
+sd10 <- 1
+  x_breaks <- c(-4*sd*0.8,-3*sd*0.8,-2*sd*0.8,-sd*0.8,mean,sd*0.8,2*sd*0.8,3*sd*0.8,4*sd*0.8) +mean
+  data18 <- rnorm(10000,mean,sd)
+
+  df18 <- data.frame(x = data18,sd10= dnorm(data18,mean,sd10))%>% distinct()
   df18$g <-"df18"
   
-  p18 <- ggplot(df18,aes(x=x,y=d)) + 
+  
+  p18 <- ggplot(df18,aes(x=x,y=sd10)) + 
    labs(title=expression(paste("正态分布6",sigma,"区间"))) + geom_line(color = color_area[1]) +  
    geom_area(fill=color_area[1]) + 
-   scale_x_continuous(limits = x_limits,breaks = x_break,labels = x_labls)+
-  scale_y_continuous(limits = c(0,0.8),breaks = c(0,0.2,0.4,0.6,0.8))+
+   scale_x_continuous(limits = x_limits,breaks = x_breaks)+
+   scale_y_continuous(limits = y_limits,breaks = y_breaks)+
+      geom_area(data =subset(df18,x< -sd*0.8),aes(x=x,y=sd10),fill=color_area[2]) +
+    geom_area(data =subset(df18,x>sd*0.8),aes(x=x,y=sd10),fill=color_area[2])+
+    geom_area(data =subset(df18,x< -2*sd*0.8),aes(x=x,y=sd10),fill=color_area[3]) +
+    geom_area(data =subset(df18,x> 2*sd*0.8),aes(x=x,y=sd10),fill=color_area[3])+
+    geom_area(data =subset(df18,x< -3*sd*0.8),aes(x=x,y=sd10),fill=color_area[4]) +
+    geom_area(data =subset(df18,x> 3*sd*0.8),aes(x=x,y=sd10),fill=color_area[4])+
+    geom_area(data =subset(df18,x< -4*sd*0.8),aes(x=x,y=sd10),fill=color_area[5]) +
+    geom_area(data =subset(df18,x> 4*sd*0.8),aes(x=x,y=sd10),fill=color_area[5]) +
+    geom_area(data =subset(df18,x< -5*sd*0.8),aes(x=x,y=sd10),fill=color_area[6]) +
+    geom_area(data =subset(df18,x> 5*sd*0.8),aes(x=x,y=sd10),fill=color_area[6])+ 
    geom_vline(aes(xintercept=0))+
-   geom_area(data =subset(df18,x< -sd*0.8),aes(x=x,y=d),fill=color_area[2]) +
-    geom_area(data =subset(df18,x>sd*0.8),aes(x=x,y=d),fill=color_area[2])+
-    geom_area(data =subset(df18,x< -2*sd*0.8),aes(x=x,y=d),fill=color_area[3]) +
-    geom_area(data =subset(df18,x> 2*sd*0.8),aes(x=x,y=d),fill=color_area[3])+
-    geom_area(data =subset(df18,x< -3*sd*0.8),aes(x=x,y=d),fill=color_area[4]) +
-    geom_area(data =subset(df18,x> 3*sd*0.8),aes(x=x,y=d),fill=color_area[4])+
-    geom_area(data =subset(df18,x< -4*sd*0.8),aes(x=x,y=d),fill=color_area[5]) +
-    geom_area(data =subset(df18,x> 4*sd*0.8),aes(x=x,y=d),fill=color_area[5]) +
-    geom_area(data =subset(df18,x< -5*sd*0.8),aes(x=x,y=d),fill=color_area[6]) +
-    geom_area(data =subset(df18,x> 5*sd*0.8),aes(x=x,y=d),fill=color_area[6])+ 
    geom_vline(aes(xintercept=mean + x_tol))+
    geom_vline(aes(xintercept=mean - x_tol))+
    theme_hkw()  
   
 
-  
-  
-  sd <- 0.6
-  data19 <- round(rnorm(100000,mean,sd),3)
+  sd12 <- 1.2
+  x_break <- c(-4*sd*0.8,-3*sd*0.8,-2*sd*0.8,-sd*0.8,mean,sd*0.8,2*sd*0.8,3*sd*0.8,4*sd*0.8) +mean
+  data19 <- round(rnorm(10000,mean,sd),2) 
 
-  df19 <- data.frame(x = data19,d= dnorm(data19,mean,sd)) %>% distinct()
+  df19 <- data.frame(x = data19,sd12= dnorm(data19,mean,sd12)) %>% distinct()
   df19$g <- "df19"
   
-  p19 <- ggplot(df19,aes(x=x,y=d)) + 
+  p19 <- ggplot(df19,aes(x=x,y=sd12)) + 
    labs(title=expression(paste("正态分布6",sigma,"区间"))) + geom_line(color = color_area[1]) +  
    geom_area(fill=color_area[1]) + 
-    scale_x_continuous(limits = x_limits,breaks = x_break,labels = x_labls)+
-   scale_y_continuous(limits = c(0,0.8),breaks = c(0,0.2,0.4,0.6,0.8))+
+   scale_x_continuous(limits = x_limits,breaks = x_breaks)+
+   scale_y_continuous(limits = y_limits,breaks = y_breaks)+
+       geom_area(data =subset(df19,x< -sd*0.8),aes(x=x,y=sd12),fill=color_area[2]) +
+    geom_area(data =subset(df19,x>sd*0.8),aes(x=x,y=sd12),fill=color_area[2])+
+    geom_area(data =subset(df19,x< -2*sd*0.8),aes(x=x,y=sd12),fill=color_area[3]) +
+    geom_area(data =subset(df19,x> 2*sd*0.8),aes(x=x,y=sd12),fill=color_area[3])+
+    geom_area(data =subset(df19,x< -3*sd*0.8),aes(x=x,y=sd12),fill=color_area[4]) +
+    geom_area(data =subset(df19,x> 3*sd*0.8),aes(x=x,y=sd12),fill=color_area[4])+
+    geom_area(data =subset(df19,x< -4*sd*0.8),aes(x=x,y=sd12),fill=color_area[5]) +
+    geom_area(data =subset(df19,x> 4*sd*0.8),aes(x=x,y=sd12),fill=color_area[5]) +
+    geom_area(data =subset(df19,x< -5*sd*0.8),aes(x=x,y=sd12),fill=color_area[6]) +
+    geom_area(data =subset(df19,x> 5*sd*0.8),aes(x=x,y=sd12),fill=color_area[6])+ 
     geom_vline(aes(xintercept=0))+
- 
-   geom_area(data =subset(df19,x< -sd*0.8),aes(x=x,y=d),fill=color_area[2]) +
-    geom_area(data =subset(df19,x>sd*0.8),aes(x=x,y=d),fill=color_area[2])+
-    geom_area(data =subset(df19,x< -2*sd*0.8),aes(x=x,y=d),fill=color_area[3]) +
-    geom_area(data =subset(df19,x> 2*sd*0.8),aes(x=x,y=d),fill=color_area[3])+
-    geom_area(data =subset(df19,x< -3*sd*0.8),aes(x=x,y=d),fill=color_area[4]) +
-    geom_area(data =subset(df19,x> 3*sd*0.8),aes(x=x,y=d),fill=color_area[4])+
-    geom_area(data =subset(df19,x< -4*sd*0.8),aes(x=x,y=d),fill=color_area[5]) +
-    geom_area(data =subset(df19,x> 4*sd*0.8),aes(x=x,y=d),fill=color_area[5]) +
-    geom_area(data =subset(df19,x< -5*sd*0.8),aes(x=x,y=d),fill=color_area[6]) +
-    geom_area(data =subset(df19,x> 5*sd*0.8),aes(x=x,y=d),fill=color_area[6])+ 
    geom_vline(aes(xintercept=mean + x_tol))+
    geom_vline(aes(xintercept=mean - x_tol))+
    theme_hkw() 
@@ -385,15 +424,18 @@ sd <- 0.8
 
 ## 3条密度曲线分布图
 
-```{r dnorm_3,fig.height=3,fig.width=9}
-  df20 <- bind_rows(df17,df18,df19)
+```{r dnorm_3, echo=FALSE,fig.height=3,fig.width=9}
+
+#df20 <- df17 %>% left_join( df18,by = "x") %>% left_join(df19,by ="x") %>% filter(!is.na(sd10),!is.na(sd08),!is.na(sd12))  %>% arrange(x)
+   
+data20 <- rnorm(10000,0,1)
+ df20 <-data.frame(x=data20,sd10 = dnorm(data20,0,1),sd08 = dnorm(data20,0,0.8),sd12 = dnorm(data20,0,1.2))  %>% distinct() %>% gather("sd","dnorm",-x)
   
-  p20 <- ggplot(df20,aes(x=x,y=d,color = g)) + 
-  labs(title=expression(paste("正态分布6",sigma,"区间"))) + 
-  geom_line() +  
-  geom_area(fill=color_area[1]) + 
-  scale_x_continuous(limits = x_limits)+
-  scale_y_continuous(limits = c(0,1.5),breaks = c(0,0.3,0.6,0.9,1.2,1.5))+
+  p20 <- ggplot(df20,aes(x=x,y=dnorm),group= sd) + 
+  labs(title="标准差分别为0.8、1.0、1.2的正态分布曲线") + 
+  geom_line(aes(color =sd),size = 1.5)  +  
+  scale_x_continuous(limits = c(-4,4))+
+  scale_y_continuous(limits = c(0,0.6),breaks = c(0,0.1,0.2,0.3,0.4,0.5))+
   geom_vline(aes(xintercept=0))+
   geom_vline(aes(xintercept=mean + x_tol))+
   geom_vline(aes(xintercept=mean - x_tol))+
@@ -479,11 +521,5 @@ sd
 
 
 ## 西格玛
-
-
-## 
-
-
-## R Markdown
 
 
